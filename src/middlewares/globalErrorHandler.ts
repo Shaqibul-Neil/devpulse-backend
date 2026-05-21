@@ -2,8 +2,8 @@ import type {
   TRequest,
   TResponse,
   TNextFunction,
-} from "../shared/types/express.types";
-import { AppError } from "../shared/utils/appError";
+} from "../types/express.types";
+import { AppError } from "../utils/appError";
 
 export const globalErrorHandler = (
   err: unknown,

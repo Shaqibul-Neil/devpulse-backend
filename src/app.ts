@@ -1,10 +1,6 @@
 import express from "express";
 import cors from "cors";
-import type {
-  TApplication,
-  TRequest,
-  TResponse,
-} from "./shared/types/express.types";
+import type { TApplication, TRequest, TResponse } from "./types/express.types";
 import router from "./app/routes";
 import { globalErrorHandler } from "./middlewares/globalErrorHandler";
 

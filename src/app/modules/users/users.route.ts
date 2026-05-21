@@ -4,4 +4,4 @@ const router = express.Router();
 
 router.post("/", () => {});
 
-export const issuesRoutes = router;
+export const usersRoutes = router;
