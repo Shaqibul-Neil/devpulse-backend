@@ -6,17 +6,25 @@ import { globalErrorHandler } from "./middlewares/globalErrorHandler";
 
 const app: TApplication = express();
 
-//parser
+/**
+ * Middleware Pipeline
+ */
 app.use(express.json());
 app.use(cors());
 
-//application routes
+/**
+ * Application Routes
+ * Prefixing all API routes with /api
+ */
 app.use("/api", router);
 app.get("/", (req: TRequest, res: TResponse) => {
   res.send("Welcome to DevPulse Server");
 });
 
-//Global Error handler
+/**
+ * Global Error Handler
+ *
+ */
 app.use(globalErrorHandler);
 
 export default app;

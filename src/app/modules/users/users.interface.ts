@@ -1,22 +1,30 @@
 import type { TRoles } from "../../../types/types";
 
+/* ========== Base User ========== */
 export interface IBaseUser {
   name: string;
   email: string;
-  password: string;
 }
-// Full DB User Shape
+
+/* ========== Signup Request (Frontend input) ========== */
+export interface ISignUpUser extends IBaseUser {
+  password: string;
+  role?: TRoles;
+}
+
+/* ========== DB User (stored in DB) ========== */
 export interface IUsers extends IBaseUser {
   id: number;
+  password: string;
   role: TRoles;
   created_at: Date;
   updated_at: Date;
 }
 
-// Signup Request Body
-export interface ISignUpUser extends IBaseUser {
-  role?: TRoles;
-}
-
-// Safe User Response
+/* ========== Safe Response ========== */
 export type ISafeUser = Omit<IUsers, "password">;
+
+/* ========== JWT payload ========== */ export interface IJwtPayload extends IBaseUser {
+  id: number;
+  role: TRoles;
+}

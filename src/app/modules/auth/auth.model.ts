@@ -1,10 +1,10 @@
 import { pool } from "../../../db";
 import type { ISafeUser, ISignUpUser } from "../users/users.interface";
 
-/*=====================  
-        Signup User
-===================== 
-*/
+/**
+ * Persists a new user record to the database.
+ * Uses RETURNING clause to avoid an extra SELECT query after insertion.
+ */
 const signUpUserInDB = async (user: ISignUpUser): Promise<ISafeUser> => {
   const { name, email, password, role } = user;
   const query = `

@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import type { StringValue } from "ms";
 import path from "path";
 import { env } from "process";
 
@@ -7,8 +8,18 @@ dotenv.config({ path: path.join(process.cwd(), ".env") });
 const config = {
   port: env.PORT as string,
   database_url: env.DATABASE_URL as string,
-  access_token_secret: env.JWT_ACCESS_TOKEN_SECRET,
-  refresh_token_secret: env.JWT_REFRESH_TOKEN_SECRET,
+  node_env: env.NODE_ENV as string,
+  bcrypt_salt_rounds: Number(env.BCRYPT_SALT_ROUNDS) || 10,
+  jwt: {
+    access: {
+      secret: env.JWT_ACCESS_TOKEN_SECRET as string,
+      expires_in: (env.JWT_ACCESS_EXPIRY as StringValue) || "1h",
+    },
+    refresh: {
+      secret: env.JWT_REFRESH_TOKEN_SECRET as string,
+      expires_in: (env.JWT_REFRESH_EXPIRY as StringValue) || "7d",
+    },
+  },
 };
 
 export default config;

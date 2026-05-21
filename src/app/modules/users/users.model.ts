@@ -1,7 +1,10 @@
 import { pool } from "../../../db";
-import type { ISafeUser } from "./users.interface";
+import type { ISafeUser, IUsers } from "./users.interface";
 
-//Get All User From DB
+/**
+ * Retrieves all users.
+ * Note: Explicitly selects fields to exclude the password hash from the result set.
+ */
 const getAllUsersFromDB = async (): Promise<ISafeUser[]> => {
   const query = `SELECT id, name, email, role, created_at, updated_at FROM users`;
 
@@ -9,12 +12,15 @@ const getAllUsersFromDB = async (): Promise<ISafeUser[]> => {
   return res.rows;
 };
 
-//Get A single user based on email
+/**
+ * Fetches a user record by email.
+ * Returns IUsers (including password) for authentication purposes.
+ */
 const getUserByEmailFromDB = async (
   email: string,
-): Promise<ISafeUser | undefined> => {
+): Promise<IUsers | undefined> => {
   const query = `
-    SELECT id, name, email, role, created_at, updated_at FROM users WHERE email = $1
+    SELECT * FROM users WHERE email = $1
     `;
   const values = [email];
   const res = await pool.query(query, values);

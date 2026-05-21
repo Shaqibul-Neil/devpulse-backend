@@ -1,27 +1,51 @@
 import bcrypt from "bcrypt";
 import type { ISafeUser, ISignUpUser } from "../users/users.interface";
 import { authModels } from "./auth.model";
+import config from "../../../config";
+import usersService from "../users/users.service";
+import { AppError } from "../../../utils/appError";
 
 class AuthService {
-  /*=====================  
-        Signup
-  ===================== 
-  */
+  /**
+   * Registers a new user.
+   * Handles business logic: duplicate check, password hashing, and persistence.
+   */
   async signUpUser(user: ISignUpUser): Promise<ISafeUser> {
     const { name, email, password, role = "contributor" } = user;
-    // hash password
-    const hashPassword = await bcrypt.hash(password, 10);
-    // create user
+
+    const isUserExist = await usersService.getSingleUser(email);
+    if (isUserExist) {
+      throw new AppError("Email already in use", 409);
+    }
+
+    // Using bcrypt to hash password with pre-configured salt rounds
+    const hashPassword = await bcrypt.hash(password, config.bcrypt_salt_rounds);
+
     const payload: ISignUpUser = { name, email, password: hashPassword, role };
     const result = await authModels.signUpUserInDB(payload);
 
     return result;
   }
 
-  /*=====================  
-        Login
-  ===================== 
-  */
+  /**
+   * Validates user credentials.
+   * Returns a sanitized user object if valid, otherwise null.
+   */
+  async validateUser(
+    email: string,
+    password: string,
+  ): Promise<ISafeUser | null> {
+    const user = await usersService.getSingleUser(email);
+    if (!user) return null;
+
+    // Direct comparison of plaintext password against the stored hash
+    const isValid = await bcrypt.compare(password, user.password);
+    if (!isValid) return null;
+
+    // Exclude password from the returned object for security
+    const { password: _, ...safeUser } = user;
+    return safeUser;
+  }
 }
 
 export default new AuthService();

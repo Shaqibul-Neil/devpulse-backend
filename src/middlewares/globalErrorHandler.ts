@@ -1,3 +1,4 @@
+import config from "../config";
 import type {
   TRequest,
   TResponse,
@@ -21,9 +22,12 @@ export const globalErrorHandler = (
     message = err.message;
   }
 
-  res.status(statusCode).json({
+  return res.status(statusCode).json({
     success: false,
     message,
-    errors: err instanceof Error ? err.message : err,
+    errors:
+      config.node_env === "development" && err instanceof AppError
+        ? err
+        : undefined,
   });
 };
