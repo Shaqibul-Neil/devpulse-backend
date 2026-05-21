@@ -1,6 +1,10 @@
 import { pool } from "../../../db";
 import type { ISafeUser, ISignUpUser } from "../users/users.interface";
 
+/*=====================  
+        Signup User
+===================== 
+*/
 const signUpUserInDB = async (user: ISignUpUser): Promise<ISafeUser> => {
   const { name, email, password, role } = user;
   const query = `
@@ -15,6 +19,11 @@ const signUpUserInDB = async (user: ISignUpUser): Promise<ISafeUser> => {
 
   return res.rows[0];
 };
+
+/*=====================  
+        Login User
+===================== 
+*/
 
 export const authModels = {
   signUpUserInDB,
