@@ -15,16 +15,15 @@ import issuesService from "./issues.service";
  */
 const createIssue = asyncHandler(
   async (req: TRequest, res: TResponse, next: TNextFunction) => {
-    const { title, description, type, status = "open" } = req.body;
+    const { title, description, type, status } = req.body;
     const { id } = req.user;
 
     if (!title || !description || !type) {
       throw new AppError("All fields are required", 400);
     }
 
-    // Create user through service layer which handles hashing and duplication checks
+    // Create issue through service layer
     const payload = { title, description, type, status, reporter_id: id };
-    console.log(payload);
     const issue = await issuesService.createIssue(payload);
     if (!issue) throw new AppError("Failed to create issue", 400);
 
@@ -38,6 +37,25 @@ const createIssue = asyncHandler(
   },
 );
 
+/**
+ * desc    Delete a issue
+ * route   POST /api/issues/:id
+ * access  Maintainer
+ */
+const deleteIssue = asyncHandler(
+  async (req: TRequest, res: TResponse, next: TNextFunction) => {
+    const { id } = req.params;
+    await issuesService.deleteIssue(Number(id));
+    sendResponse({
+      res,
+      status: 200,
+      success: true,
+      message: "Issue deleted successfully",
+    });
+  },
+);
+
 export const issuesController = {
   createIssue,
+  deleteIssue,
 };
