@@ -1,8 +1,10 @@
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import type { TApplication, TRequest, TResponse } from "./types/express.types";
 import router from "./app/routes";
 import { globalErrorHandler } from "./middlewares/globalErrorHandler";
+import config from "./config";
 
 const app: TApplication = express();
 
@@ -10,7 +12,13 @@ const app: TApplication = express();
  * Middleware Pipeline
  */
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: config.url,
+    credentials: true,
+  }),
+);
+app.use(cookieParser());
 
 /**
  * Application Routes

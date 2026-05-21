@@ -4,9 +4,9 @@ import { sendResponse } from "../../../utils/sendResponse";
 import usersService from "./users.service";
 
 /**
- * @desc    Fetch all user profiles
- * @route   GET /api/users
- * @access  Protected(Maintainer)
+ * desc    Fetch all user profiles
+ * route   GET /api/users
+ * access  Protected(Maintainer)
  */
 const getAllUser = asyncHandler(async (req: TRequest, res: TResponse) => {
   const result = await usersService.getAllUsers();
@@ -20,9 +20,9 @@ const getAllUser = asyncHandler(async (req: TRequest, res: TResponse) => {
 });
 
 /**
- * @desc    Fetch a single user profile by email
- * @route   GET /api/users/:email
- * @access  Protected (Authenticated User)
+ * desc    Fetch a single user profile by email
+ * route   GET /api/users/:email
+ * access  Protected (Authenticated User)
  */
 const getSingleUserByEmail = asyncHandler(
   async (req: TRequest, res: TResponse) => {

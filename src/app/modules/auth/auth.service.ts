@@ -4,6 +4,7 @@ import { authModels } from "./auth.model";
 import config from "../../../config";
 import usersService from "../users/users.service";
 import { AppError } from "../../../utils/appError";
+import { verifyToken } from "../../../utils/jwt";
 
 class AuthService {
   /**
@@ -45,6 +46,20 @@ class AuthService {
     // Exclude password from the returned object for security
     const { password: _, ...safeUser } = user;
     return safeUser;
+  }
+
+  /**
+   * Centralized token verification and user retrieval.
+   * Handles both 'access' and 'refresh' token types.
+   */
+  async verifyAndGetUser(token: string, type: "access" | "refresh") {
+    const payload = verifyToken(token, type);
+    if (!payload) throw new AppError("Invalid token", 401);
+
+    const user = await usersService.getUserById(payload.id);
+    if (!user) throw new AppError("User not found", 404);
+
+    return user;
   }
 }
 

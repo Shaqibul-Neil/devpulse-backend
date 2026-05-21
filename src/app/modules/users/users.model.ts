@@ -27,7 +27,23 @@ const getUserByEmailFromDB = async (
   return res.rows[0];
 };
 
+/**
+ * Fetches a user record by id.
+ * without the password column – used for refresh, profile, etc
+ */
+const getUserByIdFromDB = async (
+  id: number,
+): Promise<ISafeUser | undefined> => {
+  const query = `
+    SELECT id, name, email, role FROM users WHERE id = $1
+    `;
+  const values = [id];
+  const res = await pool.query(query, values);
+  return res.rows[0];
+};
+
 export const usersModels = {
   getAllUsersFromDB,
   getUserByEmailFromDB,
+  getUserByIdFromDB,
 };

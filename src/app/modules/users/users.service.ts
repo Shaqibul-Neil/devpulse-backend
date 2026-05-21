@@ -18,6 +18,15 @@ class UserService {
     const res = await usersModels.getUserByEmailFromDB(email);
     return res;
   }
+
+  /**
+   * Retrieves a single user by id.
+   * Returns full user data (excluding password) for refresh and any profile endpoint.
+   */
+  async getUserById(id: number): Promise<ISafeUser | undefined> {
+    const res = await usersModels.getUserByIdFromDB(id);
+    return res;
+  }
 }
 
 export default new UserService();

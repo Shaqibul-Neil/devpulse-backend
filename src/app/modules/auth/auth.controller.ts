@@ -1,16 +1,17 @@
 import type { TRequest, TResponse } from "../../../types/express.types";
 import { AppError } from "../../../utils/appError";
 import { asyncHandler } from "../../../utils/asyncHandler";
-import { signToken } from "../../../utils/jwt";
+import { setRefreshTokenCookie } from "../../../utils/cookie";
+import { signToken, verifyToken } from "../../../utils/jwt";
 import { sendResponse } from "../../../utils/sendResponse";
+import usersService from "../users/users.service";
 import authService from "./auth.service";
 
 /**
- * @desc    Register a new user
- * @route   POST /api/auth/signup
- * @access  Public
+ * desc    Register a new user
+ * route   POST /api/auth/signup
+ * access  Public
  */
-
 const signUp = asyncHandler(async (req: TRequest, res: TResponse) => {
   const { name, email, password, role } = req.body;
 
@@ -32,9 +33,9 @@ const signUp = asyncHandler(async (req: TRequest, res: TResponse) => {
 });
 
 /**
- * @desc    Authenticate user & get user profile
- * @route   POST /api/auth/login
- * @access  Public
+ * desc    Authenticate user & get user profile
+ * route   POST /api/auth/login
+ * access  Public
  */
 const login = asyncHandler(async (req: TRequest, res: TResponse) => {
   const { email, password } = req.body;
@@ -46,15 +47,19 @@ const login = asyncHandler(async (req: TRequest, res: TResponse) => {
   const user = await authService.validateUser(email, password);
   if (!user) throw new AppError("Invalid email or password", 401);
 
-  // Generate pair of Access & Refresh tokens for the authenticated user
+  // Generate Access & Refresh tokens
   const { accessToken, refreshToken } = signToken(user);
-
   const result = {
-    user: user,
-    accessToken,
-    refreshToken,
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    },
+    token: { accessToken, refreshToken },
   };
 
+  setRefreshTokenCookie(res, refreshToken);
   sendResponse({
     res,
     status: 200,
@@ -64,7 +69,33 @@ const login = asyncHandler(async (req: TRequest, res: TResponse) => {
   });
 });
 
+/**
+ * desc    Refresh the access token using the HttpOnly refresh cookie
+ * route   POST /api/auth/refresh
+ * access  Public (via cookie)
+ */
+const refresh = asyncHandler(async (req: TRequest, res: TResponse) => {
+  const refreshToken = req.cookies?.refreshToken;
+  if (!refreshToken) throw new AppError("Refresh token not found", 401);
+
+  // Validate token and get user via service layer
+  const user = await authService.verifyAndGetUser(refreshToken, "refresh");
+
+  // Token Rotation : Invalidate previous refresh token by issuing a new one
+  const { accessToken, refreshToken: newRefreshToken } = signToken(user);
+  setRefreshTokenCookie(res, newRefreshToken);
+
+  sendResponse({
+    res,
+    status: 200,
+    success: true,
+    message: "Access token generated",
+    data: { token: { accessToken, newRefreshToken } },
+  });
+});
+
 export const authControllers = {
   signUp,
   login,
+  refresh,
 };
