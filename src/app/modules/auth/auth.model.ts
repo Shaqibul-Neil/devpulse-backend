@@ -20,11 +20,6 @@ const signUpUserInDB = async (user: ISignUpUser): Promise<ISafeUser> => {
   return res.rows[0];
 };
 
-/*=====================  
-        Login User
-===================== 
-*/
-
 export const authModels = {
   signUpUserInDB,
 };

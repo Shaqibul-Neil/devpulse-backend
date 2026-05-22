@@ -19,14 +19,15 @@ const createIssue = asyncHandler(
     const { title, description, type, status } = req.body;
     const { id } = req.user;
 
-    if (!title || !description || !type) {
-      throw new AppError("All fields are required", 400);
-    }
-
     // Create issue through service layer
     const payload = { title, description, type, status, reporter_id: id };
     const issue = await issuesService.createIssue(payload);
-    if (!issue) throw new AppError("Failed to create issue", 400);
+    if (!issue)
+      throw new AppError(
+        "Failed to create issue",
+        500,
+        `The issue could not be persisted in the database.`,
+      );
 
     sendResponse({
       res,

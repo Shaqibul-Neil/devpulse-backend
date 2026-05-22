@@ -16,7 +16,11 @@ class AuthService {
 
     const isUserExist = await usersService.getSingleUser(email);
     if (isUserExist) {
-      throw new AppError("Email already in use", 409);
+      throw new AppError(
+        "Duplicate Email",
+        400,
+        "The email address is already registered in our system. Please log in.",
+      );
     }
 
     // Using bcrypt to hash password with pre-configured salt rounds
@@ -54,10 +58,20 @@ class AuthService {
    */
   async verifyAndGetUser(token: string, type: "access" | "refresh") {
     const payload = verifyToken(token, type);
-    if (!payload) throw new AppError("Invalid token", 401);
+    if (!payload)
+      throw new AppError(
+        "Invalid token",
+        401,
+        "The provided token is invalid or expired. Please log in again to obtain a new token.",
+      );
 
     const user = await usersService.getUserById(payload.id);
-    if (!user) throw new AppError("User not found", 404);
+    if (!user)
+      throw new AppError(
+        "User not found",
+        404,
+        "The requested user record does not exist in the system.",
+      );
 
     return user;
   }

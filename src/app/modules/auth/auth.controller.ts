@@ -2,9 +2,8 @@ import type { TRequest, TResponse } from "../../../types/express.types";
 import { AppError } from "../../../utils/appError";
 import { asyncHandler } from "../../../utils/asyncHandler";
 import { setRefreshTokenCookie } from "../../../utils/cookie";
-import { signToken, verifyToken } from "../../../utils/jwt";
+import { signToken } from "../../../utils/jwt";
 import { sendResponse } from "../../../utils/sendResponse";
-import usersService from "../users/users.service";
 import authService from "./auth.service";
 
 /**
@@ -15,13 +14,15 @@ import authService from "./auth.service";
 const signUp = asyncHandler(async (req: TRequest, res: TResponse) => {
   const { name, email, password, role } = req.body;
 
-  if (!name || !email || !password) {
-    throw new AppError("All fields are required", 400);
-  }
   // Create user through service layer which handles hashing and duplication checks
   const payload = { name, email, password, role };
   const user = await authService.signUpUser(payload);
-  if (!user) throw new AppError("Failed to create user", 400);
+  if (!user)
+    throw new AppError(
+      "Registration failed",
+      400,
+      "Unable to create account at this moment. Please try again later.",
+    );
 
   sendResponse({
     res,
@@ -40,12 +41,14 @@ const signUp = asyncHandler(async (req: TRequest, res: TResponse) => {
 const login = asyncHandler(async (req: TRequest, res: TResponse) => {
   const { email, password } = req.body;
 
-  if (!email || !password) {
-    throw new AppError("All fields are required", 400);
-  }
   // Validate credentials via service layer
   const user = await authService.validateUser(email, password);
-  if (!user) throw new AppError("Invalid email or password", 401);
+  if (!user)
+    throw new AppError(
+      "Authentication failed",
+      401,
+      "The email or password you entered is incorrect. Please check your credentials.",
+    );
 
   // Generate Access & Refresh tokens
   const { accessToken, refreshToken } = signToken(user);
@@ -76,7 +79,12 @@ const login = asyncHandler(async (req: TRequest, res: TResponse) => {
  */
 const refresh = asyncHandler(async (req: TRequest, res: TResponse) => {
   const refreshToken = req.cookies?.refreshToken;
-  if (!refreshToken) throw new AppError("Refresh token not found", 401);
+  if (!refreshToken)
+    throw new AppError(
+      "Unauthorized",
+      401,
+      "Refresh token is missing from your request cookies.",
+    );
 
   // Validate token and get user via service layer
   const user = await authService.verifyAndGetUser(refreshToken, "refresh");

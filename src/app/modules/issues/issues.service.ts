@@ -6,7 +6,6 @@ import type {
   IIssueFilters,
   IIssueResponse,
   IAllIssueResponse,
-  IReporter,
 } from "./issues.interface";
 import { issueModels } from "./issues.model";
 
@@ -31,14 +30,16 @@ class IssueService {
     if (issues.length === 0) return [];
 
     const reporterIds = [...new Set(issues.map((issue) => issue.reporter_id))];
-
     const reporters = await usersModels.getReportersByIdsFromDB(reporterIds);
-
     const reporterMap = new Map(reporters.map((r) => [r.id, r]));
 
     return issues.map((issue) => {
       const { reporter_id, ...issueData } = issue;
-      const reporter = reporterMap.get(reporter_id) as IReporter;
+      const reporter = reporterMap.get(reporter_id) || {
+        id: 0,
+        name: "Deleted User",
+        role: "contributor",
+      };
       return {
         ...issueData,
         reporter: reporter,
@@ -53,23 +54,25 @@ class IssueService {
 
   async getSingleIssue(issue_id: number): Promise<IAllIssueResponse> {
     const issue = await issueModels.getIssueByIdFromDB(issue_id);
-    if (!issue) throw new AppError("Issue not found", 404);
+    if (!issue) {
+      throw new AppError(
+        "Issue not found",
+        404,
+        `No issue record exists with the ID: ${issue_id}`,
+      );
+    }
 
     const { reporter_id, ...issueData } = issue;
-
-    const reporterInfo = (await usersModels.getUserByIdFromDB(
-      reporter_id,
-    )) as IReporter;
-
-    if (!reporterInfo) throw new AppError("Reporter info not found", 404);
+    const reporterInfo = await usersModels.getUserByIdFromDB(reporter_id);
+    const reporter = reporterInfo || {
+      id: 0,
+      name: "Deleted User",
+      role: "contributor",
+    };
 
     const result: IAllIssueResponse = {
       ...issueData,
-      reporter: {
-        id: reporterInfo?.id,
-        name: reporterInfo?.name,
-        role: reporterInfo?.role,
-      },
+      reporter: reporter,
     };
     return result;
   }
@@ -85,7 +88,13 @@ class IssueService {
     data: Partial<IIssue>,
   ): Promise<IIssueResponse> {
     const existingIssue = await issueModels.getIssueByIdFromDB(issue_id);
-    if (!existingIssue) throw new AppError("Issue not found", 404);
+    if (!existingIssue) {
+      throw new AppError(
+        "Issue not found",
+        404,
+        `Cannot update: Issue with ID ${issue_id} does not exist.`,
+      );
+    }
 
     const isMaintainer = role === "maintainer";
     const isOwner = existingIssue.reporter_id === user_id;
@@ -93,13 +102,18 @@ class IssueService {
     // Only owners or maintainers can update
     if (!isMaintainer && !isOwner) {
       throw new AppError(
-        "Forbidden: You don't have permission to update this issue",
+        "Forbidden",
         403,
+        "You do not have permission to modify this issue.",
       );
     }
     // contributors can only update if status is 'open'
     if (!isMaintainer && existingIssue.status !== "open") {
-      throw new AppError("You can only update an open issue", 409);
+      throw new AppError(
+        "Conflict",
+        409,
+        "You can only update an issue that is in 'open' status.",
+      );
     }
 
     const result = await issueModels.updateIssueInDB(issue_id, data);
@@ -113,7 +127,11 @@ class IssueService {
     const isDeleted = await issueModels.deleteIssueFromDB(id);
     // Check if the issue existed before deletion
     if (!isDeleted) {
-      throw new AppError("Issue not found or already deleted", 404);
+      throw new AppError(
+        "Issue not found",
+        404,
+        `Deletion failed: Issue ID ${id} not found or already deleted.`,
+      );
     }
   }
 }

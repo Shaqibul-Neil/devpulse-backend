@@ -1,4 +1,5 @@
 import type { TRequest, TResponse } from "../../../types/express.types";
+import { AppError } from "../../../utils/appError";
 import { asyncHandler } from "../../../utils/asyncHandler";
 import { sendResponse } from "../../../utils/sendResponse";
 import usersService from "./users.service";
@@ -24,10 +25,29 @@ const getAllUser = asyncHandler(async (req: TRequest, res: TResponse) => {
  * route   GET /api/users/:email
  * access  Protected (Authenticated User)
  */
-const getSingleUserByEmail = asyncHandler(
+const getSingleUserById = asyncHandler(
   async (req: TRequest, res: TResponse) => {
-    const { email } = req.params;
-    const result = await usersService.getSingleUser(email as string);
+    const { id } = req.params;
+    const targetId = Number(id);
+    const isOwner = targetId === req.user.id;
+    const isMaintainer = req.user.role === "maintainer";
+    if (!isOwner && !isMaintainer) {
+      throw new AppError(
+        "Forbidden",
+        403,
+        "You do not have permission to access this resource.",
+      );
+    }
+
+    const result = await usersService.getUserById(targetId);
+    if (!result) {
+      throw new AppError(
+        "User not found",
+        404,
+        "The requested user record does not exist.",
+      );
+    }
+
     sendResponse({
       res,
       status: 200,
@@ -40,5 +60,5 @@ const getSingleUserByEmail = asyncHandler(
 
 export const usersControllers = {
   getAllUser,
-  getSingleUserByEmail,
+  getSingleUserById,
 };
