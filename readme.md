@@ -54,6 +54,20 @@ https://your-live-api-url.com
 - Eliminates N+1 query problem
 - Uses PostgreSQL connection pooling
 
+📝 Query Parameters
+Issues Filtering
+sort: newest | oldest (default: newest)
+type: bug | feature_request
+status: open | in_progress | resolved
+Example: GET /api/issues?sort=oldest&type=bug&status=open
+
+🔐 Authentication
+All protected endpoints require Authorization: Bearer <token> header.
+
+👥 User Roles
+Contributor: Create issues, update own issues (if open)
+Maintainer: All contributor permissions + update any issue + delete issues
+
 ---
 
 ## 📊 Database Schema Summary
@@ -63,9 +77,9 @@ https://your-live-api-url.com
 | Column     | Type         | Description                   |
 | ---------- | ------------ | ----------------------------- |
 | id         | SERIAL       | Auto-incrementing primary key |
-| name       | VARCHAR(150) | User full name                |
-| email      | VARCHAR(255) | Unique email address          |
-| password   | VARCHAR(255) | Hashed password               |
+| name       | VARCHAR(100) | User full name                |
+| email      | VARCHAR(100) | Unique email address          |
+| password   | TEXT         | Hashed password               |
 | role       | VARCHAR(20)  | contributor or maintainer     |
 | created_at | TIMESTAMPTZ  | Account creation timestamp    |
 | updated_at | TIMESTAMPTZ  | Last update timestamp         |
@@ -82,6 +96,27 @@ https://your-live-api-url.com
 | reporter_id | INTEGER      | ID of the issue reporter       |
 | created_at  | TIMESTAMPTZ  | Issue creation timestamp       |
 | updated_at  | TIMESTAMPTZ  | Last update timestamp          |
+
+## 🌐 API Endpoints
+
+### Authentication
+
+- `POST /api/auth/signup` - Register new user
+- `POST /api/auth/login` - User login
+- `GET /api/auth/refresh-token` - Refresh access token
+
+### Issues
+
+- `GET /api/issues` - Get all issues (with filtering)
+- `GET /api/issues/:id` - Get single issue
+- `POST /api/issues` - Create new issue (Auth required)
+- `PATCH /api/issues/:id` - Update issue (Auth required)
+- `DELETE /api/issues/:id` - Delete issue (Maintainer only)
+
+### Users
+
+- `GET /api/users` - Get all users (Maintainer only)
+- `GET /api/users/:id` - Get user by ID (Auth required)
 
 ### Relationship
 
@@ -103,6 +138,49 @@ https://your-live-api-url.com
 | bcrypt       | Password Hashing         |
 | jsonwebtoken | JWT Authentication       |
 | Zod          | Validation               |
+
+---
+
+# 📁 Project Structure
+
+```text
+src
+│
+├── app
+│   ├── modules
+│   │   ├── auth
+│   │   │    ├──auth.controller.ts
+│   │   │    ├──auth.models.ts
+│   │   │    ├──auth.route.ts
+│   │   │    ├──auth.service.ts
+│   │   │    ├──auth.validation.ts
+│   │   ├── users
+│   │   │    ├──users.controller.ts
+│   │   │    ├──users.models.ts
+│   │   │    ├──users.route.ts
+│   │   │    ├──users.service.ts
+│   │   │    ├──users.interface.ts
+│   │   |── issues
+│   │   │    ├──issues.controller.ts
+│   │   │    ├──issues.models.ts
+│   │   │    ├──issues.route.ts
+│   │   │    ├──issues.service.ts
+│   │   │    ├──issues.validation.ts
+│   │   │    ├──issues.interface.ts
+│   │── routes
+│   │      ├──index.ts
+├── config
+├── db
+│   ├──schema
+├── middlewares
+│   │   ├── authenticate.ts
+│   │   ├── authorize.ts
+│   │   ├── validate.ts
+│   │   └── globalErrorHandler.ts
+└── utils
+├── app.ts
+└── index.ts
+```
 
 ---
 
@@ -148,63 +226,10 @@ JWT_REFRESH_EXPIRY=365d
 npm run dev
 ```
 
-### 5. Build Project
-
-```bash
-npm run build
-```
-
-### 6. Start Production Server
-
-```bash
-npm start
-```
-
-# 📁 Project Structure
-
-```text
-src
-│
-├── app
-│   ├── modules
-│   │   ├── auth
-│   │   │    ├──auth.controller.ts
-│   │   │    ├──auth.models.ts
-│   │   │    ├──auth.route.ts
-│   │   │    ├──auth.service.ts
-│   │   │    ├──auth.validation.ts
-│   │   ├── users
-│   │   │    ├──users.controller.ts
-│   │   │    ├──users.models.ts
-│   │   │    ├──users.route.ts
-│   │   │    ├──users.service.ts
-│   │   │    ├──users.interface.ts
-│   │   |── issues
-│   │   │    ├──issues.controller.ts
-│   │   │    ├──issues.models.ts
-│   │   │    ├──issues.route.ts
-│   │   │    ├──issues.service.ts
-│   │   │    ├──issues.validation.ts
-│   │   │    ├──issues.interface.ts
-│   │── routes
-│   │      ├──index.ts
-├── config
-├── db
-│   ├──schema
-├── middlewares
-│   │   ├── authenticate.ts
-│   │   ├── authorize.ts
-│   │   ├── validate.ts
-│   │   └── globalErrorHandler.ts
-└── utils
-├── app.ts
-└── index.ts
-```
-
 ---
 
 # 👨‍💻 Author
 
-**Md. Shakibul Islam**
+**Md. Shaqibul Islam**
 
 Built with Node.js, TypeScript, Express, PostgreSQL, Raw SQL, JWT, and Zod.

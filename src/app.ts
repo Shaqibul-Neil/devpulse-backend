@@ -5,19 +5,20 @@ import type { TApplication, TRequest, TResponse } from "./types/express.types";
 import router from "./app/routes";
 import { globalErrorHandler } from "./middlewares/globalErrorHandler";
 import config from "./config";
+import { sendResponse } from "./utils/sendResponse";
 
 const app: TApplication = express();
 
 /**
  * Middleware Pipeline
  */
-app.use(express.json());
 app.use(
   cors({
     origin: config.url,
     credentials: true,
   }),
 );
+app.use(express.json());
 app.use(cookieParser());
 
 /**
@@ -26,13 +27,38 @@ app.use(cookieParser());
  */
 app.use("/api", router);
 app.get("/", (req: TRequest, res: TResponse) => {
-  res.send("Welcome to DevPulse Server");
+  sendResponse({
+    res,
+    status: 200,
+    success: true,
+    message: "Welcome to DevPulse Server",
+    data: {
+      endpoints: {
+        auth: "/api/auth",
+        issues: "/api/issues",
+        users: "/api/users",
+      },
+    },
+  });
 });
 
-/**
- * Global Error Handler
- *
- */
+// Not Found Route
+app.use((req: TRequest, res: TResponse) => {
+  sendResponse({
+    res,
+    status: 404,
+    success: false,
+    message: "API endpoint not found",
+    data: {
+      endpoints: {
+        auth: "/api/auth",
+        issues: "/api/issues",
+        users: "/api/users",
+      },
+    },
+  });
+});
+// Global Error Handler
 app.use(globalErrorHandler);
 
 export default app;

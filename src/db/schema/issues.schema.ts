@@ -12,7 +12,7 @@ export const createIssuesTable = `
         type VARCHAR(20) NOT NULL
         CHECK (type IN('bug', 'feature_request')),
 
-        status VARCHAR(100) DEFAULT 'open'
+        status VARCHAR(20) DEFAULT 'open'
         CHECK (status IN('open', 'in_progress', 'resolved')),
 
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),

@@ -14,10 +14,19 @@ export const authenticate = async (
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      throw new AppError("Authentication required", 401);
+      throw new AppError(
+        "Authentication required",
+        401,
+        "Authorization header is missing or does not follow the 'Bearer <token>' schema.",
+      );
     }
     const token = authHeader.split(" ")[1];
-    if (!token) throw new AppError("Token not found", 401);
+    if (!token)
+      throw new AppError(
+        "Token not found",
+        401,
+        "The authentication attempt failed because the Bearer token payload is empty.",
+      );
 
     const user = await authService.verifyAndGetUser(token, "access");
     req.user = user;
@@ -25,6 +34,12 @@ export const authenticate = async (
     next();
   } catch (err) {
     // If token verification fails, treat as unauthorized
-    next(new AppError("Invalid or expired authentication token", 401));
+    next(
+      new AppError(
+        "verification failed",
+        401,
+        "Invalid or expired authentication token",
+      ),
+    );
   }
 };

@@ -8,7 +8,7 @@ export const createUsersTable = `
 
         password TEXT NOT NULL,
 
-        role VARCHAR(100) NOT NULL DEFAULT 'contributor'
+        role VARCHAR(20) NOT NULL DEFAULT 'contributor'
         CHECK (role IN ('contributor', 'maintainer')),
 
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
