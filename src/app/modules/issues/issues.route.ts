@@ -5,6 +5,10 @@ import { issuesController } from "./issues.controller";
 
 const router = express.Router();
 
+router.get("/", issuesController.getAllIssues);
+
+router.get("/:id", issuesController.getSingleIssues);
+
 router.post("/", authenticate, issuesController.createIssue);
 
 router.patch("/:id", authenticate, issuesController.updateIssue);

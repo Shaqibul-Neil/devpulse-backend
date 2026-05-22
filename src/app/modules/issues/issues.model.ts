@@ -1,13 +1,13 @@
 import { pool } from "../../../db";
-import type { IIssue, IIssueResponse } from "./issues.interface";
+import type { IIssue, IIssueFilters, IIssueResponse } from "./issues.interface";
 
 /**
  * Persists a new issue record into the database
- * rReturns The newly created issue record from the database
+ * Returns The newly created issue record from the database
  */
 const createIssueInDB = async (issue: IIssue): Promise<IIssueResponse> => {
   const { title, description, type, status, reporter_id } = issue;
-  const query = `
+  const sql = `
     INSERT INTO issues 
     (title, description, type, status, reporter_id)
     VALUES ($1, $2, $3, $4, $5)
@@ -15,45 +15,87 @@ const createIssueInDB = async (issue: IIssue): Promise<IIssueResponse> => {
   `;
 
   const values = [title, description, type, status, reporter_id];
-  const res = await pool.query(query, values);
+  const res = await pool.query(sql, values);
 
   return res.rows[0];
 };
 
+/**
+ 
+ */
+const getAllIssueFromDB = async (
+  filters: IIssueFilters,
+): Promise<IIssueResponse[]> => {
+  const { sort, type, status } = filters;
+  const conditions: string[] = [];
+  const values: string[] = [];
+
+  if (type) {
+    values.push(type);
+    conditions.push(`type = $${values.length}`);
+  }
+  if (status) {
+    values.push(status);
+    conditions.push(`status = $${values.length}`);
+  }
+
+  const whereClause =
+    conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+  const orderBy = sort === "oldest" ? `created_at ASC` : "created_at DESC";
+
+  const sql = `
+  SELECT * FROM issues ${whereClause} ORDER BY ${orderBy}
+  `;
+
+  const result = await pool.query(sql, values);
+  return result.rows;
+};
+
+/**
+ * Performs a dynamic partial update on an issue record
+ */
 const updateIssueInDB = async (id: number, data: Partial<IIssue>) => {
   const fields = Object.keys(data)
     .map((key, idx) => `${key} = $${idx + 2}`)
     .join(", ");
   const values = Object.values(data);
 
-  const query = `
+  const sql = `
   UPDATE issues
   SET ${fields}, updated_at = NOW()
   WHERE id = $1
   RETURNING *
   `;
-  const res = await pool.query(query, [id, ...values]);
+  const res = await pool.query(sql, [id, ...values]);
   return res.rows[0];
 };
+
+/**
+ * desc  Fetches a single issue by ID
+ */
 
 const getIssueByIdFromDB = async (
   id: number,
 ): Promise<IIssueResponse | null> => {
-  const query = `
+  const sql = `
   SELECT * FROM issues WHERE id = $1
   `;
 
-  const res = await pool.query(query, [id]);
+  const res = await pool.query(sql, [id]);
   return res.rows[0] || null;
 };
 
+/**
+ * desc    Removes an issue record from the database
+ */
 const deleteIssueFromDB = async (id: number) => {
-  const query = `
+  const sql = `
   DELETE FROM issues
   WHERE id=$1
   `;
   const values = [id];
-  const res = await pool.query(query, values);
+  const res = await pool.query(sql, values);
   console.log("--------delete", res);
   return (res.rowCount ?? 0) > 0;
 };
@@ -63,4 +105,5 @@ export const issueModels = {
   deleteIssueFromDB,
   updateIssueInDB,
   getIssueByIdFromDB,
+  getAllIssueFromDB,
 };

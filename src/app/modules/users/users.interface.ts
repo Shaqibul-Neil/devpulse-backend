@@ -23,6 +23,7 @@ export interface IUsers extends IBaseUser {
 
 /* ========== Safe Response ========== */
 export type ISafeUser = Omit<IUsers, "password">;
+export type TReporter = Pick<ISafeUser, "id" | "name" | "role">;
 
 /* ========== JWT payload ========== */ export interface IJwtPayload extends IBaseUser {
   id: number;

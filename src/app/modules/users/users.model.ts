@@ -1,5 +1,5 @@
 import { pool } from "../../../db";
-import type { ISafeUser, IUsers } from "./users.interface";
+import type { ISafeUser, IUsers, TReporter } from "./users.interface";
 
 /**
  * Retrieves all users.
@@ -42,8 +42,27 @@ const getUserByIdFromDB = async (
   return res.rows[0];
 };
 
+const getReportersByIdsFromDB = async (
+  reporter_ids: number[],
+): Promise<TReporter[]> => {
+  if (reporter_ids.length === 0) return [];
+
+  const placeholders = reporter_ids.map((_, idx) => `$${idx + 1}`).join(", ");
+
+  console.log("placeholders", placeholders);
+
+  const sql = `
+  SELECT id, name, role FROM users WHERE id IN (${placeholders})
+  `;
+
+  const result = await pool.query(sql, reporter_ids);
+  console.log("--------getReportersByIdsFromDB", result);
+  return result.rows;
+};
+
 export const usersModels = {
   getAllUsersFromDB,
   getUserByEmailFromDB,
   getUserByIdFromDB,
+  getReportersByIdsFromDB,
 };

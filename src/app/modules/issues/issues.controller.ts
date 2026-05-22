@@ -1,4 +1,3 @@
-import { title } from "node:process";
 import type {
   TNextFunction,
   TRequest,
@@ -9,10 +8,10 @@ import { asyncHandler } from "../../../utils/asyncHandler";
 import { sendResponse } from "../../../utils/sendResponse";
 import type { IIssue } from "./issues.interface";
 import issuesService from "./issues.service";
+import { issueFilter } from "../../../utils/filters";
 
 /**
  * desc    Create a new issue
- * route   POST /api/issues
  * access  Authenticated Users
  */
 const createIssue = asyncHandler(
@@ -40,8 +39,43 @@ const createIssue = asyncHandler(
 );
 
 /**
+ * desc    Get all issue
+ * access  Public
+ */
+const getAllIssues = asyncHandler(
+  async (req: TRequest, res: TResponse, next: TNextFunction) => {
+    const filters = issueFilter(req.query);
+    const issues = await issuesService.getIssues(filters);
+
+    sendResponse({
+      res,
+      status: 200,
+      success: true,
+      data: issues,
+    });
+  },
+);
+
+/**
+ * desc    Get a single issue
+ * access  Public
+ */
+const getSingleIssues = asyncHandler(
+  async (req: TRequest, res: TResponse, next: TNextFunction) => {
+    const { id } = req.params;
+    const issue = await issuesService.getSingleIssue(Number(id));
+
+    sendResponse({
+      res,
+      status: 200,
+      success: true,
+      data: issue,
+    });
+  },
+);
+
+/**
  * desc    Update a new issue
- * route   Patch /api/issues/:id
  * access  Authenticated Users
  */
 const updateIssue = asyncHandler(
@@ -75,7 +109,6 @@ const updateIssue = asyncHandler(
 
 /**
  * desc    Delete a issue
- * route   POST /api/issues/:id
  * access  Maintainer
  */
 const deleteIssue = asyncHandler(
@@ -95,4 +128,6 @@ export const issuesController = {
   createIssue,
   updateIssue,
   deleteIssue,
+  getAllIssues,
+  getSingleIssues,
 };
