@@ -54,19 +54,24 @@ https://your-live-api-url.com
 - Eliminates N+1 query problem
 - Uses PostgreSQL connection pooling
 
-📝 Query Parameters
-Issues Filtering
-sort: newest | oldest (default: newest)
-type: bug | feature_request
-status: open | in_progress | resolved
-Example: GET /api/issues?sort=oldest&type=bug&status=open
+### 📝 Query Parameters
 
-🔐 Authentication
+Issues Filtering
+
+- sort: newest | oldest (default: newest)
+- type: bug | feature_request
+- status: open | in_progress | resolved
+
+  Example: GET /api/issues?sort=oldest&type=bug&status=open
+
+### 🔐 Authentication
+
 All protected endpoints require Authorization: Bearer <token> header.
 
-👥 User Roles
-Contributor: Create issues, update own issues (if open)
-Maintainer: All contributor permissions + update any issue + delete issues
+### 👥 User Roles
+
+- Contributor: Create issues, update own issues (if open)
+- Maintainer: All contributor permissions + update any issue + delete issues
 
 ---
 
