@@ -6,6 +6,9 @@ import { issuesController } from "./issues.controller";
 const router = express.Router();
 
 router.post("/", authenticate, issuesController.createIssue);
+
+router.patch("/:id", authenticate, issuesController.updateIssue);
+
 router.delete(
   "/:id",
   authenticate,

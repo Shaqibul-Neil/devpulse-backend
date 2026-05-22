@@ -14,7 +14,7 @@ export const authenticate = async (
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      throw new AppError("Missing or malformed Authorization header", 401);
+      throw new AppError("Authentication required", 401);
     }
     const token = authHeader.split(" ")[1];
     if (!token) throw new AppError("Token not found", 401);
@@ -25,6 +25,6 @@ export const authenticate = async (
     next();
   } catch (err) {
     // If token verification fails, treat as unauthorized
-    next(new AppError((err as Error).message, 401));
+    next(new AppError("Invalid or expired authentication token", 401));
   }
 };

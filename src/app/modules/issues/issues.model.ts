@@ -20,6 +20,33 @@ const createIssueInDB = async (issue: IIssue): Promise<IIssueResponse> => {
   return res.rows[0];
 };
 
+const updateIssueInDB = async (id: number, data: Partial<IIssue>) => {
+  const fields = Object.keys(data)
+    .map((key, idx) => `${key} = $${idx + 2}`)
+    .join(", ");
+  const values = Object.values(data);
+
+  const query = `
+  UPDATE issues
+  SET ${fields}, updated_at = NOW()
+  WHERE id = $1
+  RETURNING *
+  `;
+  const res = await pool.query(query, [id, ...values]);
+  return res.rows[0];
+};
+
+const getIssueByIdFromDB = async (
+  id: number,
+): Promise<IIssueResponse | null> => {
+  const query = `
+  SELECT * FROM issues WHERE id = $1
+  `;
+
+  const res = await pool.query(query, [id]);
+  return res.rows[0] || null;
+};
+
 const deleteIssueFromDB = async (id: number) => {
   const query = `
   DELETE FROM issues
@@ -34,4 +61,6 @@ const deleteIssueFromDB = async (id: number) => {
 export const issueModels = {
   createIssueInDB,
   deleteIssueFromDB,
+  updateIssueInDB,
+  getIssueByIdFromDB,
 };
