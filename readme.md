@@ -6,9 +6,7 @@ A collaborative platform for software teams to report bugs, suggest features, an
 
 ## 🚀 Live URL
 
-https://your-live-api-url.com
-
----
+## https://devpulse-backend-omega.vercel.app
 
 ## ✨ Features
 
