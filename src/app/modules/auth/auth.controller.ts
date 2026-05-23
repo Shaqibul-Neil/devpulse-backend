@@ -28,7 +28,7 @@ const signUp = asyncHandler(async (req: TRequest, res: TResponse) => {
     res,
     status: 201,
     success: true,
-    message: "User created successfully",
+    message: "User registered successfully",
     data: user,
   });
 });
@@ -53,13 +53,15 @@ const login = asyncHandler(async (req: TRequest, res: TResponse) => {
   // Generate Access & Refresh tokens
   const { accessToken } = signToken(user);
   const result = {
+    token: accessToken,
     user: {
       id: user.id,
       name: user.name,
       email: user.email,
       role: user.role,
+      created_at: user.created_at,
+      updated_at: user.updated_at,
     },
-    token: accessToken,
   };
 
   // setRefreshTokenCookie(res, refreshToken);

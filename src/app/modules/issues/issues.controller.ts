@@ -79,7 +79,7 @@ const getSingleIssues = asyncHandler(
       res,
       status: 200,
       success: true,
-      message: "Issues retrieved successfully",
+      message: "Issue retrieved successfully",
       data: issue,
     });
   },

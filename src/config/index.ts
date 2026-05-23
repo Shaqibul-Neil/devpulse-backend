@@ -7,6 +7,7 @@ dotenv.config({ path: path.join(process.cwd(), ".env") });
 
 const config = {
   url: env.BASE_URL as string,
+  local_url: env.LOCAL_URL as string,
   port: env.PORT as string,
   database_url: env.DATABASE_URL as string,
   node_env: env.NODE_ENV as string,
