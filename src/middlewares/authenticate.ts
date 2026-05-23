@@ -17,7 +17,7 @@ export const authenticate = async (
       throw new AppError(
         "Authentication required",
         401,
-        "Authorization header is missing or does not follow the 'Bearer <token>' schema.",
+        "Authorization header is missing",
       );
     }
     const token = authHeader.split(" ")[1];
@@ -33,13 +33,6 @@ export const authenticate = async (
 
     next();
   } catch (err) {
-    // If token verification fails, treat as unauthorized
-    next(
-      new AppError(
-        "verification failed",
-        401,
-        "Invalid or expired authentication token",
-      ),
-    );
+    next(err);
   }
 };
