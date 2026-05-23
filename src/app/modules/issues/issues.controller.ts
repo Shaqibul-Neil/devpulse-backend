@@ -64,6 +64,14 @@ const getAllIssues = asyncHandler(
 const getSingleIssues = asyncHandler(
   async (req: TRequest, res: TResponse, next: TNextFunction) => {
     const { id } = req.params;
+
+    if (isNaN(Number(id))) {
+      throw new AppError(
+        "Bad Request",
+        400,
+        "The provided issue ID must be a valid number.",
+      );
+    }
     const issue = await issuesService.getSingleIssue(Number(id));
 
     sendResponse({
@@ -84,6 +92,14 @@ const updateIssue = asyncHandler(
     const { id: issue_id } = req.params;
     const { role, id: user_id } = req.user;
     const { title, description, status } = req.body;
+
+    if (isNaN(Number(issue_id))) {
+      throw new AppError(
+        "Bad Request",
+        400,
+        "The provided issue ID must be a valid number.",
+      );
+    }
 
     //Partial Update
     const data: Partial<IIssue> = {};
@@ -115,7 +131,16 @@ const updateIssue = asyncHandler(
 const deleteIssue = asyncHandler(
   async (req: TRequest, res: TResponse, next: TNextFunction) => {
     const { id } = req.params;
-    await issuesService.deleteIssue(Number(id));
+    const targetId = Number(id);
+
+    if (isNaN(targetId)) {
+      throw new AppError(
+        "Bad Request",
+        400,
+        "The provided issue ID must be a valid number.",
+      );
+    }
+    await issuesService.deleteIssue(targetId);
     sendResponse({
       res,
       status: 200,

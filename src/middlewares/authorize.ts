@@ -24,7 +24,8 @@ export const authorize = (...roles: TRoles[]) => {
           `Access denied. Role '${req.user.role}' lacks necessary privileges.`,
         );
       next();
-    } catch (error) {}
-    next(error);
+    } catch (error) {
+      next(error);
+    }
   };
 };

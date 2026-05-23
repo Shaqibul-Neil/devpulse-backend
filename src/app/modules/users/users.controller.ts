@@ -29,6 +29,14 @@ const getSingleUserById = asyncHandler(
   async (req: TRequest, res: TResponse) => {
     const { id } = req.params;
     const targetId = Number(id);
+
+    if (isNaN(targetId)) {
+      throw new AppError(
+        "Bad Request",
+        400,
+        "The provided user ID must be a valid number.",
+      );
+    }
     const isOwner = targetId === req.user.id;
     const isMaintainer = req.user.role === "maintainer";
     if (!isOwner && !isMaintainer) {
