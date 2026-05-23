@@ -12,15 +12,16 @@ export const authenticate = async (
   next: TNextFunction,
 ) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      throw new AppError(
-        "Unauthorized",
-        401,
-        "Authorization header is missing",
-      );
-    }
-    const token = authHeader.split(" ")[1];
+    // const authHeader = req.headers.authorization;
+    // if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    //   throw new AppError(
+    //     "Unauthorized",
+    //     401,
+    //     "Authorization header is missing",
+    //   );
+    // }
+    // const token = authHeader.split(" ")[1];
+    const token = req.headers.authorization;
     if (!token)
       throw new AppError(
         "Token not found",

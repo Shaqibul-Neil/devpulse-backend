@@ -51,7 +51,7 @@ const login = asyncHandler(async (req: TRequest, res: TResponse) => {
     );
 
   // Generate Access & Refresh tokens
-  const { accessToken, refreshToken } = signToken(user);
+  const { accessToken } = signToken(user);
   const result = {
     user: {
       id: user.id,
@@ -59,10 +59,10 @@ const login = asyncHandler(async (req: TRequest, res: TResponse) => {
       email: user.email,
       role: user.role,
     },
-    token: { accessToken, refreshToken },
+    token: accessToken,
   };
 
-  setRefreshTokenCookie(res, refreshToken);
+  // setRefreshTokenCookie(res, refreshToken);
   sendResponse({
     res,
     status: 200,

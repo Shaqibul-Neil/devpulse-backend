@@ -25,7 +25,6 @@ class AuthService {
 
     // Using bcrypt to hash password with pre-configured salt rounds
     const hashPassword = await bcrypt.hash(password, config.bcrypt_salt_rounds);
-
     const payload: ISignUpUser = { name, email, password: hashPassword, role };
     const result = await authModels.signUpUserInDB(payload);
 
