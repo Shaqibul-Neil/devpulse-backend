@@ -108,12 +108,21 @@ class IssueService {
       );
     }
     // contributors can only update if status is 'open'
-    if (!isMaintainer && existingIssue.status !== "open") {
-      throw new AppError(
-        "Conflict",
-        409,
-        "You can only update an issue that is in 'open' status.",
-      );
+    if (!isMaintainer) {
+      if (existingIssue.status !== "open") {
+        throw new AppError(
+          "Conflict",
+          409,
+          "You can only update an issue that is in 'open' status.",
+        );
+      }
+      if ("status" in data) {
+        throw new AppError(
+          "Forbidden",
+          403,
+          "You are not allowed to modify the status of this issue.",
+        );
+      }
     }
 
     const result = await issueModels.updateIssueInDB(issue_id, data);
