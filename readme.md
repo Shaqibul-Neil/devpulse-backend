@@ -192,8 +192,8 @@ src
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/your-username/devpulse-api.git
-cd devpulse-api
+git clone https://github.com/your-username/devpulse-backend.git
+cd devpulse-backend
 ```
 
 ### 2. Install Dependencies
