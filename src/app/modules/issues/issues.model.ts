@@ -96,7 +96,7 @@ const deleteIssueFromDB = async (id: number) => {
   `;
   const values = [id];
   const res = await pool.query(sql, values);
-  console.log("--------delete", res);
+
   return (res.rowCount ?? 0) > 0;
 };
 

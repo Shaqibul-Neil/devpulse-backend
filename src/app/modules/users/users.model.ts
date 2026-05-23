@@ -49,14 +49,11 @@ const getReportersByIdsFromDB = async (
 
   const placeholders = reporter_ids.map((_, idx) => `$${idx + 1}`).join(", ");
 
-  console.log("placeholders", placeholders);
-
   const sql = `
   SELECT id, name, role FROM users WHERE id IN (${placeholders})
   `;
 
   const result = await pool.query(sql, reporter_ids);
-  console.log("--------getReportersByIdsFromDB", result);
   return result.rows;
 };
 

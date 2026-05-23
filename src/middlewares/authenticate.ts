@@ -15,7 +15,7 @@ export const authenticate = async (
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       throw new AppError(
-        "Authentication required",
+        "Unauthorized",
         401,
         "Authorization header is missing",
       );

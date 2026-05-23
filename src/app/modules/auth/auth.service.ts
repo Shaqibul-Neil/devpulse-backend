@@ -58,13 +58,6 @@ class AuthService {
    */
   async verifyAndGetUser(token: string, type: "access" | "refresh") {
     const payload = verifyToken(token, type);
-    if (!payload)
-      throw new AppError(
-        "Invalid token",
-        401,
-        "The provided token is invalid or expired. Please log in again to obtain a new token.",
-      );
-
     const user = await usersService.getUserById(payload.id);
     if (!user)
       throw new AppError(

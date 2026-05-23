@@ -1,9 +1,11 @@
-import jwt, { type JwtPayload } from "jsonwebtoken";
+import jwt, {
+  JsonWebTokenError,
+  TokenExpiredError,
+  type JwtPayload,
+} from "jsonwebtoken";
 import config from "../config";
-import type {
-  IJwtPayload,
-  ISignUpUser,
-} from "../app/modules/users/users.interface";
+import type { IJwtPayload } from "../app/modules/users/users.interface";
+import { AppError } from "./appError";
 
 /**
  * Token Verification
@@ -11,8 +13,31 @@ import type {
 export const verifyToken = (token: string, type: "access" | "refresh") => {
   const secret =
     type === "access" ? config.jwt.access.secret : config.jwt.refresh.secret;
-  const decode = jwt.verify(token, secret);
-  return decode as JwtPayload;
+  try {
+    const decode = jwt.verify(token, secret);
+    return decode as JwtPayload;
+  } catch (error) {
+    if (error instanceof TokenExpiredError) {
+      throw new AppError(
+        "Unauthorized",
+        401,
+        "Your access token has expired. Please refresh your session.",
+      );
+    }
+    if (error instanceof JsonWebTokenError) {
+      throw new AppError(
+        "Unauthorized",
+        401,
+        "The provided token is malformed, corrupted, or invalid.",
+      );
+    }
+
+    throw new AppError(
+      "Unauthorized",
+      401,
+      "Authentication failed due to an invalid token.",
+    );
+  }
 };
 
 /**

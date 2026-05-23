@@ -12,12 +12,7 @@ const app: TApplication = express();
 /**
  * Middleware Pipeline
  */
-app.use(
-  cors({
-    origin: config.url,
-    credentials: true,
-  }),
-);
+app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 
