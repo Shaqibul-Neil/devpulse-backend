@@ -1,8 +1,4 @@
-import jwt, {
-  JsonWebTokenError,
-  TokenExpiredError,
-  type JwtPayload,
-} from "jsonwebtoken";
+import jwt, { type JwtPayload } from "jsonwebtoken";
 import config from "../config";
 import type { IJwtPayload } from "../app/modules/users/users.interface";
 import { AppError } from "./appError";
@@ -17,14 +13,14 @@ export const verifyToken = (token: string, type: "access" | "refresh") => {
     const decode = jwt.verify(token, secret);
     return decode as JwtPayload;
   } catch (error) {
-    if (error instanceof TokenExpiredError) {
+    if (error instanceof jwt.TokenExpiredError) {
       throw new AppError(
         "Unauthorized",
         401,
         "Your access token has expired. Please refresh your session.",
       );
     }
-    if (error instanceof JsonWebTokenError) {
+    if (error instanceof jwt.JsonWebTokenError) {
       throw new AppError(
         "Unauthorized",
         401,
