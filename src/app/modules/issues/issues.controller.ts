@@ -52,6 +52,7 @@ const getAllIssues = asyncHandler(
       res,
       status: 200,
       success: true,
+      message: "Issues retrieved successfully",
       data: issues,
     });
   },
@@ -78,6 +79,7 @@ const getSingleIssues = asyncHandler(
       res,
       status: 200,
       success: true,
+      message: "Issues retrieved successfully",
       data: issue,
     });
   },
